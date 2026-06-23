@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { AppError, isAppError } from "./middleware/error.js";
 import { corsMiddleware } from "./middleware/cors.js";
+import { csrfMiddleware } from "./middleware/csrf.js";
 import { sessionMiddleware } from "./middleware/session.js";
 import { apiKeyMiddleware } from "./middleware/apiKey.js";
 import { healthRoutes } from "./routes/health.js";
@@ -21,6 +22,7 @@ export function createApp() {
   app.use("*", corsMiddleware);
   app.use("*", sessionMiddleware);
   app.use("*", apiKeyMiddleware);
+  app.use("*", csrfMiddleware);
 
   app.onError((err, c) => {
     if (isAppError(err)) {

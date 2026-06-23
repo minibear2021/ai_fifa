@@ -773,6 +773,7 @@ jobs:
 - **2026-06-25 · `deploy-api` job 漏了 `pnpm --filter @ai-fifa/shared build`**：CI 装的 shared 是源码，worker bundle 用的 dist 可能缺失/过期；deploy job 也必须 build
 - **2026-06-25 · Free plan Workers CPU 限制 10ms**（Paid 30s 可配 `limits.cpu_ms`）：PBKDF2 600k 必超时；改用 SHA-256 + salt + 服务端 pepper（<1ms）
 - **2026-06-25 · Free plan 部署不能用 `cpu_ms` 字段**：deploy 会被 Cloudflare API 拒（code 100328）
+- **2026-06-25 · 跨域 cookie 必须 `SameSite=None; Secure`**：前端 `fifa.apziz.cn` 调 `api.fifa.apziz.cn` 是 cross-origin，`Lax` 不让 cookie 进 XHR；`None` + HTTPS 解决；代价是要 CSRF 防护（已加 Origin 头校验）
 
 ---
 

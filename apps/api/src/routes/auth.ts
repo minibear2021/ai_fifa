@@ -23,7 +23,7 @@ const loginSchema = z.object({
 const COOKIE_BASE = {
   httpOnly: true,
   secure: true,
-  sameSite: "Lax" as const,
+  sameSite: "None" as const,
   path: "/",
 };
 
