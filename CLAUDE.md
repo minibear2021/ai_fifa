@@ -771,6 +771,8 @@ jobs:
 - **2026-06-25 · zod `z.string().uuid()` 只校验格式不校验版本**（regex 是 8-4-4-4-12 hex 形式）：`11111111-...` 通过；要用严格 v4 用 `z.string().uuidv4()`（zod 3.25+）
 - **2026-06-25 · Cloudflare Workers module-scope `Date.now()` 不可靠**（不抛错但值可能异常，zod 报"must be greater than 0"）：运行时计算值放 handler 里；module scope 只放纯字面量 + 同步赋值
 - **2026-06-25 · `deploy-api` job 漏了 `pnpm --filter @ai-fifa/shared build`**：CI 装的 shared 是源码，worker bundle 用的 dist 可能缺失/过期；deploy job 也必须 build
+- **2026-06-25 · Free plan Workers CPU 限制 10ms**（Paid 30s 可配 `limits.cpu_ms`）：PBKDF2 600k 必超时；改用 SHA-256 + salt + 服务端 pepper（<1ms）
+- **2026-06-25 · Free plan 部署不能用 `cpu_ms` 字段**：deploy 会被 Cloudflare API 拒（code 100328）
 
 ---
 

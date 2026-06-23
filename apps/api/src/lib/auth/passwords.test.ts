@@ -4,7 +4,7 @@ import { hashPassword, verifyPassword } from "./passwords.js";
 describe("passwords", () => {
   it("hashes and verifies a correct password", async () => {
     const hash = await hashPassword("correct-horse-battery-staple");
-    expect(hash).toMatch(/^pbkdf2\$600000\$[0-9a-f]{32}\$[0-9a-f]{64}$/);
+    expect(hash).toMatch(/^sha256\$[0-9a-f]{32}\$[0-9a-f]{64}$/);
     expect(await verifyPassword("correct-horse-battery-staple", hash)).toBe(true);
   });
 
@@ -21,7 +21,7 @@ describe("passwords", () => {
 
   it("rejects malformed stored hashes", async () => {
     expect(await verifyPassword("any", "not-a-valid-format")).toBe(false);
-    expect(await verifyPassword("any", "pbkdf2$0$salt$hash")).toBe(false);
-    expect(await verifyPassword("any", "wrongalgo$100000$salt$hash")).toBe(false);
+    expect(await verifyPassword("any", "sha256$0$hash")).toBe(false);
+    expect(await verifyPassword("any", "wrongalgo$salt$hash")).toBe(false);
   });
 });
