@@ -45,7 +45,7 @@ jobs:
       - name: Install Wrangler globally
         run: npm install -g wrangler@3
       - name: Publish to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@v4
         with:
           wranglerVersion: skip
           apiToken: ${{ secrets.CF_API_TOKEN }}
@@ -69,7 +69,7 @@ jobs:
       - name: Install Wrangler globally
         run: npm install -g wrangler@3
       - name: Apply D1 migrations
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@v4
         with:
           wranglerVersion: skip
           apiToken: ${{ secrets.CF_API_TOKEN }}
@@ -77,7 +77,7 @@ jobs:
           workingDirectory: apps/api
           command: d1 migrations apply DB --remote
       - name: Deploy Worker
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@v4
         with:
           wranglerVersion: skip
           apiToken: ${{ secrets.CF_API_TOKEN }}
