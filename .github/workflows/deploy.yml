@@ -42,9 +42,12 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @ai-fifa/shared build
       - run: pnpm --filter @ai-fifa/web build
+      - name: Install Wrangler globally
+        run: npm install -g wrangler@3
       - name: Publish to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
+          wranglerVersion: skip
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           workingDirectory: apps/web
@@ -63,9 +66,12 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Install Wrangler globally
+        run: npm install -g wrangler@3
       - name: Apply D1 migrations
         uses: cloudflare/wrangler-action@v3
         with:
+          wranglerVersion: skip
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           workingDirectory: apps/api
@@ -73,7 +79,8 @@ jobs:
       - name: Deploy Worker
         uses: cloudflare/wrangler-action@v3
         with:
+          wranglerVersion: skip
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           workingDirectory: apps/api
-          command: deploy
+          command: deploy --env production
