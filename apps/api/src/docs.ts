@@ -1,5 +1,8 @@
-import { OpenAPIRegistry, OpenApiGeneratorV31 } from "@asteasolutions/zod-to-openapi";
+import { OpenAPIRegistry, OpenApiGeneratorV31, extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 import { z } from "zod";
+
+extendZodWithOpenApi(z);
+
 import {
   seasonSchema,
   teamSchema,
@@ -296,7 +299,7 @@ export function buildOpenApiDocument() {
       query: z.object({
         status: matchStatusSchema.optional(),
         team_id: z.string().uuid().optional(),
-        limit: z.coerce.number().int().min(1).max(200).optional(),
+        limit: z.number().int().min(1).max(200).optional(),
       }),
     },
     responses: {
@@ -341,7 +344,7 @@ export function buildOpenApiDocument() {
     path: "/api/v1/teams",
     summary: "List top teams by ELO (for leaderboard)",
     request: {
-      query: z.object({ limit: z.coerce.number().int().min(1).max(200).optional() }),
+      query: z.object({ limit: z.number().int().min(1).max(200).optional() }),
     },
     responses: {
       200: { description: "Teams", content: { "application/json": { schema: dataEnvelope(z.array(teamWithOwnerSchema)) } } },
