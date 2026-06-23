@@ -767,6 +767,8 @@ jobs:
 - **2026-06-25 · wrangler 多个子命令都要带 `--env production`**：d1/migrations/deploy 三件套一个都不能漏；漏一个就回落到顶层占位 ID
 - **2026-06-25 · 前端用 `VITE_API_BASE` 注入生产 API URL**（不要靠相对路径 + Pages 代理）：CI build 时设环境变量，bundle 直接用绝对 URL 跨域调 Worker；CORS 已在后端 ALLOWED_ORIGIN 配好
 - **2026-06-25 · `apiFetch` 加 `credentials: 'include'`**：session cookie 跨域时也能带上（agent API key 不受影响）
+- **2026-06-25 · Cloudflare Workers 禁止 module-load（global scope）调 `crypto.randomUUID()`**：会抛 "Disallowed operation in global scope"，worker 启动失败；要在请求 handler 里调，或用合法 UUID v4 字面量
+- **2026-06-25 · zod `z.string().uuid()` 只校验格式不校验版本**（regex 是 8-4-4-4-12 hex 形式）：`11111111-...` 通过；要用严格 v4 用 `z.string().uuidv4()`（zod 3.25+）
 
 ---
 
