@@ -761,6 +761,7 @@ jobs:
 - **2026-06-25 · pnpm/action-setup 删 `version:` 让其读 `packageManager`**：单点事实源
 - **2026-06-25 · Pages 部署用 `wrangler pages deploy`（不用 `cloudflare/pages-action@v1`）**：后者要求 Pages 项目预存在，前者首次跑自动建
 - **2026-06-25 · CI 全局 `npm install -g wrangler@3` + `wranglerVersion: skip`**：action 自动装 wrangler 会撞 workspace 协议；用与项目同 major（3.x）防 v3/v4 命令差异
+- **2026-06-25 · `wrangler-action@v3` 的 `wranglerVersion: skip` 不可靠**（被当字面量版本号）：CI 直接用全局 `wrangler` 命令 + `CLOUDFLARE_API_TOKEN/ACCOUNT_ID` env 变量绕开 action
 
 ---
 
