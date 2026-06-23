@@ -40,21 +40,26 @@ authRoutes.post("/api/v1/auth/register", async (c) => {
   const existing = await db.select().from(users).where(eq(users.email, email.toLowerCase())).limit(1);
   if (existing.length > 0) throw errors.conflict("EMAIL_TAKEN", "Email already registered");
 
-  const passwordHash = await hashPassword(password);
-  const id = crypto.randomUUID();
-  await db.insert(users).values({
-    id,
-    email: email.toLowerCase(),
-    passwordHash,
-    displayName: display_name,
-    createdAt: Date.now(),
-    isAdmin: false,
-  });
+  try {
+    const passwordHash = await hashPassword(password);
+    const id = crypto.randomUUID();
+    await db.insert(users).values({
+      id,
+      email: email.toLowerCase(),
+      passwordHash,
+      displayName: display_name,
+      createdAt: Date.now(),
+      isAdmin: false,
+    });
 
-  const token = await signSession(id, c.env.JWT_SECRET);
-  setCookie(c, SESSION_COOKIE_NAME, token, { ...COOKIE_BASE, maxAge: SESSION_COOKIE_MAX_AGE });
+    const token = await signSession(id, c.env.JWT_SECRET);
+    setCookie(c, SESSION_COOKIE_NAME, token, { ...COOKIE_BASE, maxAge: SESSION_COOKIE_MAX_AGE });
 
-  return c.json({ data: { id, email: email.toLowerCase(), display_name } }, 201);
+    return c.json({ data: { id, email: email.toLowerCase(), display_name } }, 201);
+  } catch (err) {
+    console.error("register failed at:", err instanceof Error ? err.message : String(err), err);
+    throw err;
+  }
 });
 
 authRoutes.post("/api/v1/auth/login", async (c) => {

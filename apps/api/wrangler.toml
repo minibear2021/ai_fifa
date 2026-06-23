@@ -30,6 +30,9 @@ routes = [
   { pattern = "api.fifa.apziz.cn", custom_domain = true }
 ]
 
+[env.production.limits]
+cpu_ms = 30000
+
 [env.production.vars]
 ENVIRONMENT = "production"
 ALLOWED_ORIGIN = "https://fifa.apziz.cn"
