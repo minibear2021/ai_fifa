@@ -32,27 +32,28 @@ export default function Matches() {
   });
 
   const teamsQ = useQuery({
-    queryKey: ["teams", "all"],
+    queryKey: ["public-teams"],
     queryFn: async () => (await apiFetch<unknown>("/api/v1/teams?limit=200")) as TeamRow[],
-    enabled: false,
   });
 
-  const teamName = (id: string) => teamsQ.data?.find((t) => t.id === id)?.name ?? id.slice(0, 8);
+  const teamName = (id: string) => teamsQ.data?.find((t) => t.id === id)?.name ?? id.slice(0, 6);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <header>
-        <h1 className="text-2xl font-bold">Matches</h1>
+        <p className="eyebrow">Matchday</p>
+        <h1 className="font-display text-display-lg text-paper mt-2">Matches</h1>
       </header>
-      <div className="flex gap-1 border-b border-slate-800">
+
+      <div className="flex items-center gap-6 border-b border-line">
         {TABS.map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`px-4 py-2 text-sm border-b-2 -mb-px ${
+            className={`pb-3 -mb-px text-sm transition-colors border-b-2 ${
               tab === t.id
-                ? "border-emerald-500 text-white"
-                : "border-transparent text-slate-400 hover:text-slate-200"
+                ? "text-paper border-pitch"
+                : "text-muted border-transparent hover:text-paper"
             }`}
             type="button"
           >
@@ -60,38 +61,32 @@ export default function Matches() {
           </button>
         ))}
       </div>
-      {matchesQ.isLoading && <p className="text-slate-400">Loading…</p>}
+
+      {matchesQ.isLoading && <p className="text-dim text-sm">Loading…</p>}
       {matchesQ.data && matchesQ.data.length === 0 && (
-        <p className="text-slate-500">No matches.</p>
+        <p className="text-dim text-sm">No matches.</p>
       )}
-      <div className="space-y-2">
+
+      <div className="border border-line bg-panel rounded-lg divide-y divide-line">
         {(matchesQ.data ?? []).map((m) => (
           <Link
             key={m.id}
             to={`/matches/${m.id}`}
-            className="block rounded-lg border border-slate-800 bg-slate-900/40 p-3 hover:border-emerald-500/50 transition"
+            className="grid grid-cols-12 items-center px-5 py-4 hover:bg-panel-2 transition-colors"
           >
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <p className="text-sm text-slate-300">
-                  {teamName(m.home_id)} <span className="text-slate-500">vs</span> {teamName(m.away_id)}
-                </p>
-                <p className="text-xs text-slate-500">
-                  {new Date(m.kickoff_at).toLocaleString()}
-                </p>
-              </div>
-              <div className="text-right">
-                {m.status === "finished" ? (
-                  <p className="text-2xl font-mono font-semibold">
-                    {m.home_score} <span className="text-slate-600">·</span> {m.away_score}
-                  </p>
-                ) : (
-                  <span className="text-xs uppercase tracking-wider text-slate-500">
-                    {m.status}
-                  </span>
-                )}
-              </div>
-            </div>
+            <span className="col-span-1 eyebrow tabular-nums">M{m.id.slice(0, 4)}</span>
+            <span className="col-span-4 text-sm text-paper truncate">
+              {teamName(m.home_id)}
+            </span>
+            <span className="col-span-2 font-data text-2xl text-paper text-center tabular-nums">
+              {m.status === "finished" ? `${m.home_score}–${m.away_score}` : "·"}
+            </span>
+            <span className="col-span-4 text-sm text-paper text-right truncate">
+              {teamName(m.away_id)}
+            </span>
+            <span className="col-span-1 eyebrow text-dim text-right uppercase tracking-eyebrow">
+              {m.status === "finished" ? "FT" : m.kickoff_at > Date.now() ? "SCH" : "—" }
+            </span>
           </Link>
         ))}
       </div>

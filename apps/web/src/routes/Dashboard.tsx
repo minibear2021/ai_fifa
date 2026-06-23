@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { apiFetch, ApiError } from "../lib/api";
-import { teamSchema, type Team, formationSchema } from "@ai-fifa/shared/schemas";
+import { formationSchema } from "@ai-fifa/shared/schemas";
 import { Field, inputClass } from "../components/Field";
 
 const createSchema = z.object({
@@ -17,14 +17,11 @@ type CreateForm = z.infer<typeof createSchema>;
 
 type TeamRow = {
   id: string;
-  user_id: string;
-  season_id: string | null;
   name: string;
   formation: string;
   rating: number;
   created_at: number;
 };
-
 type MatchRow = {
   id: string;
   home_id: string;
@@ -41,18 +38,21 @@ export default function Dashboard() {
 
   const teamsQ = useQuery({
     queryKey: ["me", "teams"],
-    queryFn: async () => {
-      const raw = (await apiFetch<unknown>("/api/v1/me/teams")) as TeamRow[];
-      return raw;
-    },
+    queryFn: async () => (await apiFetch<unknown>("/api/v1/me/teams")) as TeamRow[],
   });
 
   const matchesQ = useQuery({
-    queryKey: ["matches", "upcoming"],
+    queryKey: ["matches", "scheduled"],
     queryFn: async () => {
-      const raw = (await apiFetch<unknown>("/api/v1/matches?status=scheduled&limit=20")) as MatchRow[];
-      return raw.filter((m) => m.kickoff_at > Date.now());
+      const all = (await apiFetch<unknown>("/api/v1/matches?status=scheduled&limit=50")) as MatchRow[];
+      return all.filter((m) => m.kickoff_at > Date.now());
     },
+  });
+
+  const teamsMapQ = useQuery({
+    queryKey: ["public-teams"],
+    queryFn: async () => (await apiFetch<unknown>("/api/v1/teams?limit=200")) as TeamRow[],
+    enabled: !!matchesQ.data,
   });
 
   const create = useMutation({
@@ -74,70 +74,94 @@ export default function Dashboard() {
   });
 
   const myTeamIds = new Set((teamsQ.data ?? []).map((t) => t.id));
+  const teamName = (id: string) => teamsMapQ.data?.find((t) => t.id === id)?.name ?? id.slice(0, 6);
   const myUpcoming = (matchesQ.data ?? []).filter(
     (m) => myTeamIds.has(m.home_id) || myTeamIds.has(m.away_id),
   );
 
   return (
-    <div className="space-y-8">
-      <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">My teams</h2>
-          <button
-            onClick={() => setShowCreate((v) => !v)}
-            className="px-3 py-1.5 rounded-md bg-emerald-500 text-slate-950 text-sm font-medium hover:bg-emerald-400"
-            type="button"
-          >
-            {showCreate ? "Cancel" : "Create team"}
-          </button>
+    <div className="space-y-12">
+      <header className="flex items-end justify-between">
+        <div>
+          <p className="eyebrow">Dashboard</p>
+          <h1 className="font-display text-display-lg text-paper mt-2">Operations</h1>
         </div>
-        {showCreate && (
-          <CreateTeamForm
-            onSubmit={(v) => create.mutate(v)}
-            submitting={create.isPending}
-          />
-        )}
-        {teamsQ.isLoading && <p className="text-slate-400">Loading…</p>}
+        <button
+          onClick={() => setShowCreate((v) => !v)}
+          className="inline-flex items-center h-10 px-4 rounded-md border border-line bg-panel hover:bg-panel-2 text-sm text-paper transition-colors"
+          type="button"
+        >
+          {showCreate ? "Cancel" : "New team"}
+        </button>
+      </header>
+
+      {showCreate && (
+        <CreateTeamForm
+          onSubmit={(v) => create.mutate(v)}
+          submitting={create.isPending}
+        />
+      )}
+
+      <section className="space-y-4">
+        <div className="flex items-baseline justify-between">
+          <h2 className="font-display text-xl text-paper">Your teams</h2>
+          <span className="eyebrow">{(teamsQ.data ?? []).length} active</span>
+        </div>
+        {teamsQ.isLoading && <p className="text-dim text-sm">Loading…</p>}
         {teamsQ.data && teamsQ.data.length === 0 && (
-          <p className="text-slate-500">No teams yet. Create one to get started.</p>
+          <div className="border border-dashed border-line rounded-lg px-6 py-12 text-center">
+            <p className="text-muted text-sm">No teams yet. Create one to get started.</p>
+          </div>
         )}
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {(teamsQ.data ?? []).map((t) => (
             <Link
               key={t.id}
               to={`/team/${t.id}`}
-              className="block rounded-xl border border-slate-800 bg-slate-900/60 p-4 hover:border-emerald-500/50 transition"
+              className="block border border-line bg-panel rounded-lg p-5 hover:border-paper/20 transition-colors"
             >
-              <p className="text-xs uppercase tracking-wider text-slate-500">{t.formation}</p>
-              <p className="text-lg font-semibold mt-1">{t.name}</p>
-              <p className="text-sm text-slate-400 mt-2">ELO {t.rating}</p>
+              <div className="flex items-baseline justify-between">
+                <p className="eyebrow">{t.formation}</p>
+                <p className="font-data text-xs text-dim">ELO</p>
+              </div>
+              <p className="font-display text-xl text-paper mt-3 leading-tight">{t.name}</p>
+              <p className="font-data text-2xl text-paper mt-4 tabular-nums">{t.rating}</p>
             </Link>
           ))}
         </div>
       </section>
 
-      <section>
-        <h2 className="text-xl font-semibold mb-4">Upcoming matches</h2>
-        {matchesQ.isLoading && <p className="text-slate-400">Loading…</p>}
+      <section className="space-y-4">
+        <h2 className="font-display text-xl text-paper">Upcoming matches</h2>
+        {matchesQ.isLoading && <p className="text-dim text-sm">Loading…</p>}
         {myUpcoming.length === 0 && !matchesQ.isLoading && (
-          <p className="text-slate-500">No upcoming matches for your teams.</p>
+          <p className="text-dim text-sm">No upcoming matches for your teams.</p>
         )}
-        <div className="space-y-2">
+        <div className="border border-line rounded-lg divide-y divide-line bg-panel">
           {myUpcoming.map((m) => {
             const isHome = myTeamIds.has(m.home_id);
             return (
               <Link
                 key={m.id}
                 to={`/matches/${m.id}`}
-                className="block rounded-lg border border-slate-800 bg-slate-900/40 p-3 hover:border-emerald-500/50 transition"
+                className="grid grid-cols-12 items-center px-5 py-4 hover:bg-panel-2 transition-colors"
               >
-                <div className="flex items-center justify-between text-sm">
-                  <span>
-                    {isHome ? "🏠" : "✈️"}{" "}
-                    {new Date(m.kickoff_at).toLocaleString()}
-                  </span>
-                  <span className="text-slate-500">{m.status}</span>
-                </div>
+                <span className="col-span-1 eyebrow tabular-nums">M{m.id.slice(0, 4)}</span>
+                <span className="col-span-4 text-sm text-paper truncate">
+                  {isHome ? "vs" : "@"} {teamName(isHome ? m.away_id : m.home_id)}
+                </span>
+                <span className="col-span-3 eyebrow">
+                  {new Date(m.kickoff_at).toLocaleString(undefined, {
+                    month: "short",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
+                <span className="col-span-3 eyebrow text-dim text-right uppercase tracking-eyebrow">
+                  {m.status}
+                </span>
+                <span className="col-span-1 text-right text-paper/40">→</span>
               </Link>
             );
           })}
@@ -164,7 +188,7 @@ function CreateTeamForm({
         onSubmit(v);
         reset();
       })}
-      className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 mb-4 grid gap-3 sm:grid-cols-3"
+      className="border border-line bg-panel rounded-lg p-5 grid gap-3 sm:grid-cols-3"
     >
       <Field label="Team name" error={errors.name?.message}>
         <input {...register("name")} className={inputClass} placeholder="Red Lions" />
@@ -182,9 +206,9 @@ function CreateTeamForm({
         <button
           type="submit"
           disabled={submitting}
-          className="w-full py-2 rounded-md bg-emerald-500 text-slate-950 font-medium hover:bg-emerald-400 disabled:opacity-50"
+          className="w-full h-10 rounded-md bg-pitch text-ink font-body text-sm font-medium hover:bg-pitch-glow disabled:opacity-50"
         >
-          {submitting ? "Creating…" : "Create"}
+          {submitting ? "Creating…" : "Create team"}
         </button>
       </div>
     </form>

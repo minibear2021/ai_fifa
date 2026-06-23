@@ -6,7 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { apiFetch, ApiError } from "../lib/api";
-import { Field, inputClass } from "../components/Field";
+import { inputClass } from "../components/Field";
 
 const registerSchema = z.object({
   email: z.string().email("Invalid email"),
@@ -53,43 +53,67 @@ export default function Register() {
   }, [registered, navigate]);
 
   return (
-    <div className="max-w-sm mx-auto py-12">
-      <h1 className="text-2xl font-bold mb-1">Create account</h1>
-      <p className="text-slate-400 text-sm mb-6">Set up your team in 30 seconds.</p>
-      <form onSubmit={onSubmit} className="space-y-4">
-        <Field label="Display name" error={errors.display_name?.message}>
+    <div className="max-w-md mx-auto pt-12">
+      <p className="eyebrow">New coach</p>
+      <h1 className="font-display text-display-lg text-paper mt-3 leading-none">
+        Sign your<br />
+        <span className="italic text-pitch">first contract.</span>
+      </h1>
+      <p className="text-muted text-sm mt-3">Pick a name. We do the rest.</p>
+
+      <form onSubmit={onSubmit} className="mt-10 space-y-5">
+        <label className="block">
+          <span className="eyebrow block mb-2">Display name</span>
           <input
             {...register("display_name")}
             type="text"
             autoComplete="name"
             className={inputClass}
+            placeholder="Pep Guardiola"
           />
-        </Field>
-        <Field label="Email" error={errors.email?.message}>
-          <input {...register("email")} type="email" autoComplete="email" className={inputClass} />
-        </Field>
-        <Field label="Password" error={errors.password?.message} hint="≥ 8 characters">
+          {errors.display_name && (
+            <span className="text-xs text-card mt-1.5 block">{errors.display_name.message}</span>
+          )}
+        </label>
+        <label className="block">
+          <span className="eyebrow block mb-2">Email</span>
+          <input
+            {...register("email")}
+            type="email"
+            autoComplete="email"
+            className={inputClass}
+            placeholder="you@team.ai"
+          />
+          {errors.email && (
+            <span className="text-xs text-card mt-1.5 block">{errors.email.message}</span>
+          )}
+        </label>
+        <label className="block">
+          <span className="eyebrow block mb-2">Password</span>
           <input
             {...register("password")}
             type="password"
             autoComplete="new-password"
             className={inputClass}
           />
-        </Field>
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full py-2.5 rounded-md bg-emerald-500 text-slate-950 font-medium hover:bg-emerald-400 disabled:opacity-50"
-        >
-          {isSubmitting ? "Creating…" : "Create account"}
-        </button>
+          {errors.password && (
+            <span className="text-xs text-card mt-1.5 block">{errors.password.message}</span>
+          )}
+          <span className="eyebrow text-dim mt-1.5 block">≥ 8 characters</span>
+        </label>
+        <div className="flex items-center justify-between pt-2">
+          <Link to="/login" className="text-sm text-muted hover:text-paper">
+            Already have an account? <span className="text-pitch">Sign in →</span>
+          </Link>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="h-10 px-5 rounded-md bg-pitch text-ink font-body text-sm font-medium hover:bg-pitch-glow disabled:opacity-50"
+          >
+            {isSubmitting ? "Creating…" : "Create account"}
+          </button>
+        </div>
       </form>
-      <p className="text-sm text-slate-400 mt-6 text-center">
-        Already have an account?{" "}
-        <Link to="/login" className="text-emerald-400 hover:underline">
-          Log in
-        </Link>
-      </p>
     </div>
   );
 }

@@ -775,6 +775,9 @@ jobs:
 - **2026-06-25 · Free plan 部署不能用 `cpu_ms` 字段**：deploy 会被 Cloudflare API 拒（code 100328）
 - **2026-06-25 · 跨域 cookie 必须 `SameSite=None; Secure`**：前端 `fifa.apziz.cn` 调 `api.fifa.apziz.cn` 是 cross-origin，`Lax` 不让 cookie 进 XHR；`None` + HTTPS 解决；代价是要 CSRF 防护（已加 Origin 头校验）
 - **2026-06-25 · 登录后导航用 `useEffect` 而不是 async 回调里直接 `navigate`**：cookie 已设但 react-query 缓存的 `me.data` 还是 null；先 `qc.invalidateQueries(["auth","me"])` 触发 refetch，再用 useEffect 监听成功标志后 navigate；分离状态变更和导航
+- **2026-06-25 · 设计系统：Tactical Operations Room**（避开 AI 默认套路）：色板夜场 ink+panel+paper+pitch-green，字体 Fraunces (display) + Geist (body) + JetBrains Mono (data)，signature 是 SVG 球场示意图（Pitch 组件），次级是 MatchTicker 横向滚动条；只用于 live/primary 状态，不刷色
+- **2026-06-25 · 左侧固定栏 Layout（命令中心感）**：Logo + 季节卡 + 导航 + 用户菜单（display_name + email + Sign out），主区域最大宽度 6xl
+- **2026-06-25 · zod 判别联合 `switch` 必须有 `default: never` 分支**：保证新增 case 时编译报错；`never` 上访问属性会爆，所以 default 用 literal 字符串占位
 
 ---
 

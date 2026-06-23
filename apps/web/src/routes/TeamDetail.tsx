@@ -7,14 +7,13 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 import { apiFetch, ApiError } from "../lib/api";
 import {
-  playerSchema,
-  strategySchema,
   formationSchema,
   type Player,
   type Strategy,
   type Formation,
 } from "@ai-fifa/shared/schemas";
 import { Field, inputClass } from "../components/Field";
+import { Pitch } from "../components/Pitch";
 
 type TeamDetail = {
   team: { id: string; name: string; formation: string; rating: number; created_at: number };
@@ -41,10 +40,7 @@ export default function TeamDetail() {
 
   const detailQ = useQuery({
     queryKey: ["team", id],
-    queryFn: async () => {
-      const raw = (await apiFetch<unknown>(`/api/v1/me/teams/${id}`)) as TeamDetail;
-      return raw;
-    },
+    queryFn: async () => (await apiFetch<unknown>(`/api/v1/me/teams/${id}`)) as TeamDetail,
     enabled: !!id,
   });
 
@@ -63,12 +59,11 @@ export default function TeamDetail() {
   });
 
   const updateStrategy = useMutation({
-    mutationFn: async (body: StrategyForm) => {
-      return apiFetch<Strategy>(`/api/v1/me/teams/${id}/strategy`, {
+    mutationFn: async (body: StrategyForm) =>
+      apiFetch<Strategy>(`/api/v1/me/teams/${id}/strategy`, {
         method: "PATCH",
         body: JSON.stringify(body),
-      });
-    },
+      }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["team", id] });
       toast.success("Strategy updated");
@@ -79,13 +74,14 @@ export default function TeamDetail() {
     },
   });
 
-  if (detailQ.isLoading) return <p className="text-slate-400">Loading…</p>;
-  if (detailQ.isError) return <p className="text-red-400">Failed to load team</p>;
+  if (detailQ.isLoading) return <p className="text-dim text-sm">Loading…</p>;
+  if (detailQ.isError) return <p className="text-card text-sm">Failed to load team</p>;
   const data = detailQ.data!;
 
   const nextMatch = (upcomingQ.data ?? []).sort((a, b) => a.kickoff_at - b.kickoff_at)[0];
   const lockMs = 30 * 60 * 1000;
   const isLocked = nextMatch && nextMatch.kickoff_at - Date.now() < lockMs;
+  const lockedUntil = isLocked ? new Date(nextMatch!.kickoff_at).toLocaleString() : null;
 
   const playersByPos = (data.players ?? []).reduce<Record<string, Player[]>>((acc, p) => {
     (acc[p.position] ??= []).push(p);
@@ -93,31 +89,73 @@ export default function TeamDetail() {
   }, {});
 
   return (
-    <div className="space-y-8">
-      <header>
-        <p className="text-xs uppercase tracking-wider text-slate-500">{data.team.formation}</p>
-        <h1 className="text-3xl font-bold">{data.team.name}</h1>
-        <p className="text-slate-400 text-sm mt-1">ELO {data.team.rating}</p>
+    <div className="space-y-12">
+      <header className="grid grid-cols-12 gap-6 items-end">
+        <div className="col-span-7">
+          <p className="eyebrow">{data.team.formation}</p>
+          <h1 className="font-display text-display-lg text-paper mt-3 leading-none">
+            {data.team.name}
+          </h1>
+        </div>
+        <div className="col-span-5 grid grid-cols-2 gap-px bg-line border border-line rounded-lg overflow-hidden">
+          <div className="bg-panel px-5 py-4">
+            <p className="eyebrow">ELO</p>
+            <p className="font-data text-3xl text-paper mt-1 tabular-nums">{data.team.rating}</p>
+          </div>
+          <div className="bg-panel px-5 py-4">
+            <p className="eyebrow">Squad</p>
+            <p className="font-data text-3xl text-paper mt-1 tabular-nums">{(data.players ?? []).length}</p>
+          </div>
+        </div>
       </header>
 
-      <section>
-        <h2 className="text-xl font-semibold mb-3">Squad</h2>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {(["GK", "DF", "MF", "FW"] as const).map((pos) => (
-            <div key={pos} className="rounded-lg border border-slate-800 bg-slate-900/40 p-3">
-              <p className="text-xs uppercase tracking-wider text-slate-500 mb-2">
-                {pos} · {playersByPos[pos]?.length ?? 0}
-              </p>
-              <ul className="space-y-1">
-                {(playersByPos[pos] ?? []).map((p) => (
-                  <li key={p.id} className="text-sm flex items-center justify-between">
-                    <span>{p.name}</span>
-                    <span className="text-slate-500 text-xs">OVR {p.overall}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+      <section className="grid grid-cols-12 gap-6">
+        <div className="col-span-12 lg:col-span-7 space-y-3">
+          <div className="flex items-baseline justify-between">
+            <h2 className="eyebrow">Formation</h2>
+            <span className="font-data text-[11px] text-dim">Attacking →</span>
+          </div>
+          <div className="border border-line bg-panel rounded-lg p-4">
+            <Pitch
+              home={{
+                formation: data.team.formation as Formation,
+                players: data.players,
+                primary: "#4FFF8B",
+                secondary: "#0C100D",
+                label: data.team.name,
+              }}
+              size="lg"
+            />
+          </div>
+        </div>
+
+        <div className="col-span-12 lg:col-span-5 space-y-3">
+          <h2 className="eyebrow">Squad</h2>
+          <div className="border border-line bg-panel rounded-lg divide-y divide-line">
+            {(["GK", "DF", "MF", "FW"] as const).map((pos) => (
+              <div key={pos} className="px-4 py-3">
+                <div className="flex items-baseline justify-between">
+                  <p className="eyebrow">{pos}</p>
+                  <p className="font-data text-[10px] text-dim">
+                    {(playersByPos[pos] ?? []).length}
+                  </p>
+                </div>
+                <ul className="mt-1.5 space-y-0.5">
+                  {(playersByPos[pos] ?? []).map((p) => (
+                    <li
+                      key={p.id}
+                      className="flex items-center justify-between text-sm"
+                    >
+                      <span className="text-paper">{p.name}</span>
+                      <span className="font-data text-xs text-dim tabular-nums">
+                        {p.overall}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -125,7 +163,7 @@ export default function TeamDetail() {
         <StrategyEditor
           initial={data.strategy}
           locked={!!isLocked}
-          lockedUntil={isLocked ? new Date(nextMatch!.kickoff_at).toLocaleString() : null}
+          lockedUntil={lockedUntil}
           onSubmit={(v) => updateStrategy.mutate(v)}
           submitting={updateStrategy.isPending}
         />
@@ -174,18 +212,21 @@ function StrategyEditor({
   const w = watch();
 
   return (
-    <section>
-      <h2 className="text-xl font-semibold mb-3">Strategy</h2>
+    <section className="space-y-4">
+      <div className="flex items-baseline justify-between">
+        <h2 className="eyebrow">Strategy</h2>
+        {isDirty && !locked && <span className="font-data text-[10px] text-amber">UNSAVED</span>}
+      </div>
       {locked && (
-        <div className="rounded-md border border-amber-700/50 bg-amber-950/40 text-amber-200 text-sm p-3 mb-4">
-          Strategy is locked — next match starts at {lockedUntil}.
+        <div className="border border-amber/30 bg-amber/5 rounded-md px-4 py-3 text-amber text-sm">
+          Strategy locked — next match starts {lockedUntil}.
         </div>
       )}
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="rounded-xl border border-slate-800 bg-slate-900/40 p-5 space-y-4"
+        className="border border-line bg-panel rounded-lg p-6 space-y-5"
       >
-        <div className="grid sm:grid-cols-3 gap-3">
+        <div className="grid sm:grid-cols-3 gap-4">
           <Field label="Formation" error={errors.formation?.message}>
             <select {...register("formation")} className={inputClass} disabled={locked}>
               {FORMATIONS.map((f) => (
@@ -215,24 +256,31 @@ function StrategyEditor({
           </Field>
         </div>
 
-        <div className="grid sm:grid-cols-3 gap-3">
+        <div className="grid sm:grid-cols-3 gap-4">
           <RangeField label="Pressing" name="pressing" value={w.pressing} register={register} disabled={locked} />
           <RangeField label="Passing risk" name="passing_risk" value={w.passing_risk} register={register} disabled={locked} />
           <RangeField label="Width" name="width" value={w.width} register={register} disabled={locked} />
         </div>
 
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" {...register("fouls_tactical")} disabled={locked} />
-          <span>Tactical fouls (more cards, more disruption)</span>
+        <label className="flex items-center gap-2.5 text-sm text-muted">
+          <input
+            type="checkbox"
+            {...register("fouls_tactical")}
+            disabled={locked}
+            className="accent-pitch"
+          />
+          <span>Tactical fouls (more disruption, more cards)</span>
         </label>
 
-        <button
-          type="submit"
-          disabled={locked || !isDirty || submitting}
-          className="px-4 py-2 rounded-md bg-emerald-500 text-slate-950 font-medium hover:bg-emerald-400 disabled:opacity-50"
-        >
-          {submitting ? "Saving…" : "Save strategy"}
-        </button>
+        <div className="flex justify-end">
+          <button
+            type="submit"
+            disabled={locked || !isDirty || submitting}
+            className="h-10 px-5 rounded-md bg-pitch text-ink font-body text-sm font-medium hover:bg-pitch-glow disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            {submitting ? "Saving…" : "Save strategy"}
+          </button>
+        </div>
       </form>
     </section>
   );
@@ -259,7 +307,7 @@ function RangeField({
         max={100}
         {...register(name, { valueAsNumber: true })}
         disabled={disabled}
-        className="w-full"
+        className="w-full accent-pitch"
       />
     </Field>
   );
