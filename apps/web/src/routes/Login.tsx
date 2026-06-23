@@ -1,7 +1,9 @@
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { apiFetch, ApiError } from "../lib/api";
 import { inputClass } from "../components/Field";
@@ -16,6 +18,8 @@ type LoginForm = z.infer<typeof loginSchema>;
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation() as { state?: { from?: string } };
+  const qc = useQueryClient();
+  const [loggedIn, setLoggedIn] = useState(false);
   const {
     register,
     handleSubmit,
@@ -31,7 +35,10 @@ export default function Login() {
         body: JSON.stringify(values),
       });
       toast.success("Logged in");
-      navigate(location.state?.from ?? "/dashboard", { replace: true });
+      // Invalidate /me so Layout and any ProtectedRoute refetch the user.
+      // (cookie is set by server; query cache still has the old null.)
+      qc.invalidateQueries({ queryKey: ["auth", "me"] });
+      setLoggedIn(true);
     } catch (err) {
       if (err instanceof ApiError) {
         toast.error("Login failed", { description: err.message });
@@ -40,6 +47,13 @@ export default function Login() {
       }
     }
   });
+
+  useEffect(() => {
+    if (loggedIn) {
+      const target = location.state?.from;
+      navigate(target && target !== "/login" ? target : "/dashboard", { replace: true });
+    }
+  }, [loggedIn, navigate, location.state]);
 
   return (
     <div className="max-w-sm mx-auto py-12">

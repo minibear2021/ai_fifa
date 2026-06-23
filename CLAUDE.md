@@ -774,6 +774,7 @@ jobs:
 - **2026-06-25 · Free plan Workers CPU 限制 10ms**（Paid 30s 可配 `limits.cpu_ms`）：PBKDF2 600k 必超时；改用 SHA-256 + salt + 服务端 pepper（<1ms）
 - **2026-06-25 · Free plan 部署不能用 `cpu_ms` 字段**：deploy 会被 Cloudflare API 拒（code 100328）
 - **2026-06-25 · 跨域 cookie 必须 `SameSite=None; Secure`**：前端 `fifa.apziz.cn` 调 `api.fifa.apziz.cn` 是 cross-origin，`Lax` 不让 cookie 进 XHR；`None` + HTTPS 解决；代价是要 CSRF 防护（已加 Origin 头校验）
+- **2026-06-25 · 登录后导航用 `useEffect` 而不是 async 回调里直接 `navigate`**：cookie 已设但 react-query 缓存的 `me.data` 还是 null；先 `qc.invalidateQueries(["auth","me"])` 触发 refetch，再用 useEffect 监听成功标志后 navigate；分离状态变更和导航
 
 ---
 

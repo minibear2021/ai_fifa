@@ -1,7 +1,9 @@
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Link, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { apiFetch, ApiError } from "../lib/api";
 import { Field, inputClass } from "../components/Field";
@@ -16,6 +18,8 @@ type RegisterForm = z.infer<typeof registerSchema>;
 
 export default function Register() {
   const navigate = useNavigate();
+  const qc = useQueryClient();
+  const [registered, setRegistered] = useState(false);
   const {
     register,
     handleSubmit,
@@ -31,7 +35,8 @@ export default function Register() {
         body: JSON.stringify(values),
       });
       toast.success("Account created", { description: "Welcome to AI FIFA" });
-      navigate("/dashboard");
+      qc.invalidateQueries({ queryKey: ["auth", "me"] });
+      setRegistered(true);
     } catch (err) {
       if (err instanceof ApiError) {
         toast.error("Registration failed", { description: `${err.code}: ${err.message}` });
@@ -40,6 +45,12 @@ export default function Register() {
       }
     }
   });
+
+  useEffect(() => {
+    if (registered) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [registered, navigate]);
 
   return (
     <div className="max-w-sm mx-auto py-12">
