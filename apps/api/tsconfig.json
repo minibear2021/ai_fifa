@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022"],
+    "types": ["@cloudflare/workers-types", "@cloudflare/vitest-pool-workers"],
+    "outDir": "./dist",
+    "noEmit": true,
+    "paths": {
+      "@ai-fifa/shared": ["../../packages/shared/src/index.ts"],
+      "@ai-fifa/shared/*": ["../../packages/shared/src/*"]
+    }
+  },
+  "include": ["src/**/*", "vitest.config.ts", "test-setup.ts"],
+  "exclude": ["node_modules", "dist", ".wrangler"]
+}

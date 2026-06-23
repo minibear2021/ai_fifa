@@ -1,0 +1,45 @@
+name = "aififa-api"
+main = "src/index.ts"
+compatibility_date = "2024-12-30"
+compatibility_flags = ["nodejs_compat"]
+
+# Local dev defaults. `wrangler dev` will use these.
+# NOTE: The JWT_SECRET below is a non-secret placeholder for local development only.
+# Production MUST set a real secret via `wrangler secret put JWT_SECRET --env production`.
+[vars]
+ENVIRONMENT = "development"
+ALLOWED_ORIGIN = "http://localhost:5173"
+JWT_SECRET = "local-dev-only-not-a-real-secret-replace-in-production-32bytes"
+
+# --- Local D1 (used by `wrangler dev --local`) ---
+# database_id is a placeholder; the file-backed SQLite is created under .wrangler/.
+[[d1_databases]]
+binding = "DB"
+database_name = "aififa-db-local"
+database_id = "00000000-0000-0000-0000-000000000000"
+migrations_dir = "migrations"
+
+# --- Production environment ---
+# To set up production:
+#   1. wrangler d1 create aififa-db-prod
+#   2. paste the printed database_id below
+#   3. wrangler secret put JWT_SECRET
+#   4. wrangler deploy --env production
+[env.production]
+name = "aififa-api"
+routes = [
+  { pattern = "api.aififa.example.com/*", custom_domain = true }
+]
+
+[env.production.vars]
+ENVIRONMENT = "production"
+ALLOWED_ORIGIN = "https://aififa.example.com"
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "aififa-db-prod"
+database_id = "REPLACE_AFTER_wrangler_d1_create"
+migrations_dir = "migrations"
+
+# Secrets (set via `wrangler secret put` or GitHub Actions):
+#   JWT_SECRET

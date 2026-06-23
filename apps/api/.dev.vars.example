@@ -1,0 +1,6 @@
+# Copy to .dev.vars and fill in real values for local dev.
+# .dev.vars is gitignored and loaded by `wrangler dev` automatically.
+
+JWT_SECRET=replace-with-32+byte-random-string
+ALLOWED_ORIGIN=http://localhost:5173
+ENVIRONMENT=development

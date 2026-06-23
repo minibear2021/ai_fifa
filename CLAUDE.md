@@ -738,6 +738,24 @@ jobs:
 - **2026-06-23 · API Key 仅创建时返回明文**：与 GitHub/Stripe 一致，最佳实践。
 - **2026-06-23 · React 而非 SvelteKit**：团队/AI 社区资源更多，react-query 生态成熟。
 - **2026-06-23 · Canvas 2D 而非 WebGL**：2D 足球场可视化用 Canvas 2D 完全够用，省下 3D 复杂度。
+- **2026-06-23 · pnpm 10 而非 9**：用户本机已装 10.29.2，workspaces 兼容，无 9 的强需求。
+- **2026-06-23 · compatibility_date 2024-12-30**：本地 workerd 不支持 2025-05-01 之前日期暂无需更新的特性。
+- **2026-06-23 · Vite `host: 127.0.0.1` 而非默认 localhost**：Windows 上 `localhost` 解析为 `::1`，proxy 失败。显式 IPv4 绑定。
+- **2026-06-23 · 模拟器骨架首版：runMatch 返回空 events + 0-0**：完整算法（每分钟步进 + modifier）留待下个 plan。
+- **2026-06-23 · OpenAPI 用 @asteasolutions/zod-to-openapi + Stoplight Elements CDN**：构建时类型化生成，CDN 加载 UI 0 打包成本。
+- **2026-06-23 · API 团队代号：`@ai-fifa/*`**：scope 短、好识别、`.example.com` 用作占位。
+- **2026-06-23 · bootstrap 阶段不接入 argon2id/JWT/限流**：等用户/鉴权/Key 三个 feature 一起做，避免半成品。
+- **2026-06-24 · 密码哈希用 PBKDF2-SHA256 / 600k iter (Web Crypto)**：@node-rs/argon2 不兼容 Workers runtime
+- **2026-06-24 · Hono 错误处理必须用 `app.onError()`**：v4 middleware try/catch 失效
+- **2026-06-24 · 模拟器 HOME_ADVANTAGE=1.5**：避免平局被压成稀有事件
+- **2026-06-24 · D1 避免大 batch**：单次 batch 多 insert 会触发 SQLITE_MAX_VARIABLE
+- **2026-06-24 · test-setup 内嵌 SQL**：worker 内不可读文件，迁移 SQL 嵌入 TS
+- **2026-06-24 · 测试用 `SELF.fetch`**：vitest-pool-workers 推荐路径，绑定自动从 wrangler.toml 注入
+- **2026-06-24 · R2 范围聚焦"AI 能上场"**：用户/鉴权/Key/Agent/比赛/模拟 完整闭环；前端 UI 留 Round 3
+- **2026-06-25 · 本地 JWT_SECRET 放 wrangler.toml [vars] 占位 + 注释**：prod 必须 secret put
+- **2026-06-25 · Leaderboard = /api/v1/teams?limit=N**：复用 teams 端点，避免冗余
+- **2026-06-25 · 比赛事件默认折叠关键事件**：减少 90+ shot 事件视觉噪音
+- **2026-06-25 · 不用 drizzle-kit（hand-written SQL）**：D1 限制已知，hand-written 更可控
 
 ---
 
