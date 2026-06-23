@@ -78,6 +78,8 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Build shared package
+        run: pnpm --filter @ai-fifa/shared build
       - name: Install Wrangler globally
         run: npm install -g wrangler@3
       - name: Apply D1 migrations
