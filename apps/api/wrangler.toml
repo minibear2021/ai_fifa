@@ -38,7 +38,7 @@ ALLOWED_ORIGIN = "https://aififa.example.com"
 [[env.production.d1_databases]]
 binding = "DB"
 database_name = "aififa-db-prod"
-database_id = "REPLACE_AFTER_wrangler_d1_create"
+database_id = "098694fb-2cc6-413b-8bbe-2b3a06eaba80"
 migrations_dir = "migrations"
 
 # Secrets (set via `wrangler secret put` or GitHub Actions):
