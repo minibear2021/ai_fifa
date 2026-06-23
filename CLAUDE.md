@@ -756,6 +756,9 @@ jobs:
 - **2026-06-25 · Leaderboard = /api/v1/teams?limit=N**：复用 teams 端点，避免冗余
 - **2026-06-25 · 比赛事件默认折叠关键事件**：减少 90+ shot 事件视觉噪音
 - **2026-06-25 · 不用 drizzle-kit（hand-written SQL）**：D1 限制已知，hand-written 更可控
+- **2026-06-25 · `apps/web` 加 tsconfig `paths` + Vite alias（正则严格匹配）解析 `@ai-fifa/shared/*` 到源文件**：dev/typecheck 不依赖 dist build；Vite alias 必须用 `find: /^...$/` 正则避免前缀吞子路径
+- **2026-06-25 · CI workflow 在 typecheck 前 `pnpm --filter @ai-fifa/shared build`**：保留 Worker bundle 需要 dist 的一步
+- **2026-06-25 · pnpm/action-setup 删 `version:` 让其读 `packageManager`**：单点事实源
 
 ---
 

@@ -7,7 +7,9 @@
     "allowJs": false,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@ai-fifa/shared": ["../../packages/shared/src/index.ts"],
+      "@ai-fifa/shared/*": ["../../packages/shared/src/*"]
     }
   },
   "include": ["src/**/*", "vite.config.ts"],
