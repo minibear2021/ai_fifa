@@ -41,7 +41,10 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @ai-fifa/shared build
-      - run: pnpm --filter @ai-fifa/web build
+      - name: Build web
+        env:
+          VITE_API_BASE: https://api.fifa.apziz.cn
+        run: pnpm --filter @ai-fifa/web build
       - name: Install Wrangler globally
         run: npm install -g wrangler@3
       - name: Create Pages project if missing

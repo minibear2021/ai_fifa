@@ -39,7 +39,7 @@ export default function Home() {
           </div>
         )}
         {seasonQ.isError && (
-          <p className="mt-2 text-red-200">Unable to load season. Is the API running on :8787?</p>
+          <p className="mt-2 text-red-200">Unable to reach the API. Check the network and try again.</p>
         )}
       </section>
 

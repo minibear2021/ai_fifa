@@ -765,6 +765,8 @@ jobs:
 - **2026-06-25 · `wrangler pages deploy` 不自动建项目**（我之前说错）：必须先 `wrangler pages project create` 或 Dashboard 手动建；CI 加「create if missing」步骤
 - **2026-06-25 · 优先用 `wrangler pages project list` 探测而非 try/catch**：bash 友好、可读、易调试
 - **2026-06-25 · wrangler 多个子命令都要带 `--env production`**：d1/migrations/deploy 三件套一个都不能漏；漏一个就回落到顶层占位 ID
+- **2026-06-25 · 前端用 `VITE_API_BASE` 注入生产 API URL**（不要靠相对路径 + Pages 代理）：CI build 时设环境变量，bundle 直接用绝对 URL 跨域调 Worker；CORS 已在后端 ALLOWED_ORIGIN 配好
+- **2026-06-25 · `apiFetch` 加 `credentials: 'include'`**：session cookie 跨域时也能带上（agent API key 不受影响）
 
 ---
 

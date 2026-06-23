@@ -13,9 +13,13 @@ export class ApiError extends Error {
 type Envelope<T> = { data: T; meta?: Record<string, unknown> };
 type ErrorEnvelope = { error: { code: string; message: string; details?: unknown } };
 
+const API_BASE = (import.meta.env.VITE_API_BASE as string | undefined) ?? "";
+
 export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const res = await fetch(path, {
+  const url = `${API_BASE}${path}`;
+  const res = await fetch(url, {
     ...init,
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
       ...(init.headers ?? {}),
