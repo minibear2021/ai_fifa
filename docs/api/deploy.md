@@ -75,23 +75,24 @@ curl https://api.aififa.example.com/healthz
 
 ## 7. 部署 Web
 
-### 方式 A：Cloudflare Pages Dashboard（手动）
+CI 自动部署（`.github/workflows/deploy.yml` 的 `deploy-web` job）。
 
-1. Pages → Create application → Direct Upload
-2. 项目名：`aififa-web`
-3. 构建命令：`pnpm --filter @ai-fifa/web build`
-4. 构建输出目录：`apps/web/dist`
-5. 环境变量：暂无（API 地址由 vite proxy 在 dev 用，prod 通过 Pages Functions 或 CORS 直连）
-6. 首次上传前先本地 build：
-   ```bash
-   pnpm --filter @ai-fifa/web build
-   ```
-7. 拖拽 `apps/web/dist` 到上传区
+**`wrangler pages deploy` 会在首次跑时自动创建 Pages 项目**，不需要 Dashboard 手动建。
 
-### 方式 B：GitHub Actions（自动）
-
-`main` 分支 push 后自动部署（`.github/workflows/deploy.yml` 已配）。
 需要 GitHub Secrets：`CF_API_TOKEN`、`CF_ACCOUNT_ID`。
+
+### 手动部署（如果 CI 不可用）
+
+```bash
+pnpm --filter @ai-fifa/web build
+pnpm exec wrangler pages deploy apps/web/dist --project-name=aififa-web
+```
+
+### 首次部署后：配置自定义域
+
+1. Dashboard → Pages → `aififa-web` → Custom domains
+2. 添加 `fifa.apziz.cn`（或你的域）
+3. Cloudflare 自动配 DNS + SSL
 
 ## 8. Web 的生产 API 地址
 

@@ -43,13 +43,12 @@ jobs:
       - run: pnpm --filter @ai-fifa/shared build
       - run: pnpm --filter @ai-fifa/web build
       - name: Publish to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
+        uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          projectName: aififa-web
-          directory: apps/web/dist
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          workingDirectory: apps/web
+          command: pages deploy dist --project-name=aififa-web --commit-dirty=true
 
   deploy-api:
     name: Deploy API (Workers)
