@@ -28,12 +28,12 @@ migrations_dir = "migrations"
 [env.production]
 name = "aififa-api"
 routes = [
-  { pattern = "api.aififa.example.com/*", custom_domain = true }
+  { pattern = "api.fifa.apziz.cn/*", custom_domain = true }
 ]
 
 [env.production.vars]
 ENVIRONMENT = "production"
-ALLOWED_ORIGIN = "https://aififa.example.com"
+ALLOWED_ORIGIN = "https://fifa.apziz.cn"
 
 [[env.production.d1_databases]]
 binding = "DB"
