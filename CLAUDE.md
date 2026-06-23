@@ -764,6 +764,7 @@ jobs:
 - **2026-06-25 · `wrangler-action@v3` 的 `wranglerVersion: skip` 不可靠**（被当字面量版本号）：CI 直接用全局 `wrangler` 命令 + `CLOUDFLARE_API_TOKEN/ACCOUNT_ID` env 变量绕开 action
 - **2026-06-25 · `wrangler pages deploy` 不自动建项目**（我之前说错）：必须先 `wrangler pages project create` 或 Dashboard 手动建；CI 加「create if missing」步骤
 - **2026-06-25 · 优先用 `wrangler pages project list` 探测而非 try/catch**：bash 友好、可读、易调试
+- **2026-06-25 · wrangler 多个子命令都要带 `--env production`**：d1/migrations/deploy 三件套一个都不能漏；漏一个就回落到顶层占位 ID
 
 ---
 
