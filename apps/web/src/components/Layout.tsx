@@ -14,6 +14,7 @@ const navItems = [
 const publicNavItems = [
   { to: "/matches", label: "Matches" },
   { to: "/leaderboard", label: "Leaderboard" },
+  { to: "/api/v1/docs/ui", label: "API Docs" },
 ] as const;
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -104,6 +105,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 className="text-sm text-pitch hover:text-pitch-glow"
               >
                 Create account →
+              </Link>
+              <Link
+                to="/api/v1/docs/ui"
+                className="text-xs eyebrow text-dim hover:text-muted mt-1"
+              >
+                API Docs
               </Link>
             </div>
           )}

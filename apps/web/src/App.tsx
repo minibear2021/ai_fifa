@@ -11,6 +11,7 @@ import ApiKeys from "./routes/ApiKeys";
 import Matches from "./routes/Matches";
 import MatchDetail from "./routes/MatchDetail";
 import Leaderboard from "./routes/Leaderboard";
+import ApiDocs from "./routes/ApiDocs";
 
 export default function App() {
   return (
@@ -47,6 +48,8 @@ export default function App() {
         <Route element={<Layout><Matches /></Layout>} path="/matches" />
         <Route element={<Layout><MatchDetail /></Layout>} path="/matches/:id" />
         <Route element={<Layout><Leaderboard /></Layout>} path="/leaderboard" />
+        <Route element={<ApiDocs />} path="/api/v1/docs/ui" />
+        <Route element={<ApiDocs />} path="/docs" />
       </Routes>
     </>
   );

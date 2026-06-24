@@ -779,6 +779,7 @@ jobs:
 - **2026-06-25 · 左侧固定栏 Layout（命令中心感）**：Logo + 季节卡 + 导航 + 用户菜单（display_name + email + Sign out），主区域最大宽度 6xl
 - **2026-06-25 · zod 判别联合 `switch` 必须有 `default: never` 分支**：保证新增 case 时编译报错；`never` 上访问属性会爆，所以 default 用 literal 字符串占位
 - **2026-06-25 · `@asteasolutions/zod-to-openapi` 必须显式 `extendZodWithOpenApi(z)`**：否则 schema 没有 `.openapi()` 方法，所有 path 注册都报 `schema.openapi is not a function`；在 docs.ts 顶部 import 后立即调一次（影响整个 runtime 的 zod 原型，shared 包里的 schema 也自动有方法）
+- **2026-06-25 · Stoplight Elements 文档 UI 在前端用 React 路由挂载**（`/api/v1/docs/ui` 和 `/docs`），不用 Pages fallback 渲染：Pages 的 SPA fallback 会返回 index.html，React Router 找不到匹配就空；CDN 动态注入 `<elements-api>`，spec URL 用绝对 `VITE_API_BASE` 避免跨域歧义
 
 ---
 
