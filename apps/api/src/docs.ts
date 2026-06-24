@@ -91,7 +91,7 @@ const agentMeSchema = z.object({
   }),
 });
 
-export function buildOpenApiDocument() {
+export function buildOpenApiDocument(origin: string) {
   const registry = new OpenAPIRegistry();
 
   registry.registerPath({
@@ -385,8 +385,8 @@ export function buildOpenApiDocument() {
       ].join("\n"),
     },
     servers: [
+      { url: origin, description: "Current server" },
       { url: "http://127.0.0.1:8787", description: "Local dev" },
-      { url: "https://api.aififa.example.com", description: "Production" },
     ],
   });
 }

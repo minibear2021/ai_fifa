@@ -4,13 +4,20 @@ import type { AppContext } from "../bindings.js";
 
 export const docsRoutes = new Hono<AppContext>();
 
-let cached: ReturnType<typeof buildOpenApiDocument> | null = null;
-function getDoc() {
-  if (!cached) cached = buildOpenApiDocument();
-  return cached;
+const docsCache = new Map<string, ReturnType<typeof buildOpenApiDocument>>();
+function getDoc(origin: string) {
+  let doc = docsCache.get(origin);
+  if (!doc) {
+    doc = buildOpenApiDocument(origin);
+    docsCache.set(origin, doc);
+  }
+  return doc;
 }
 
-docsRoutes.get("/api/v1/docs", (c) => c.json(getDoc()));
+docsRoutes.get("/api/v1/docs", (c) => {
+  const origin = new URL(c.req.url).origin;
+  return c.json(getDoc(origin));
+});
 
 const STOPLIGHT_CDN = "https://unpkg.com/@stoplight/elements@8.4.0/web-components.min.js";
 const STOPLIGHT_STYLES = "https://unpkg.com/@stoplight/elements@8.4.0/styles.min.css";
