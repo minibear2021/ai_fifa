@@ -16,11 +16,6 @@ const STOPLIGHT_CDN = "https://unpkg.com/@stoplight/elements@8.4.0/web-component
 const STOPLIGHT_STYLES = "https://unpkg.com/@stoplight/elements@8.4.0/styles.min.css";
 
 docsRoutes.get("/api/v1/docs/ui", (c) => {
-  // apiDescriptionUrl must be absolute: this UI is served at api.fifa.apziz.cn,
-  // but the page is often opened via the Pages site fifa.apziz.cn/api/v1/docs/ui
-  // (frontend proxies to /api/v1/docs/ui). A relative path would resolve against
-  // fifa.apziz.cn and hit the Pages origin (which has no /api route).
-  // We need the spec to be fetched from the API origin explicitly.
   const origin = new URL(c.req.url).origin;
   return c.html(`<!doctype html>
 <html lang="en">
@@ -29,13 +24,15 @@ docsRoutes.get("/api/v1/docs/ui", (c) => {
     <title>AI FIFA · API 文档</title>
     <link rel="stylesheet" href="${STOPLIGHT_STYLES}" />
     <script type="module" src="${STOPLIGHT_CDN}"></script>
+    <style>html, body { margin: 0; height: 100%; background: #0C100D; color: #ECEFE6; color-scheme: dark; }</style>
   </head>
-  <body style="margin:0;height:100vh">
+  <body>
     <elements-api
       apiDescriptionUrl="${origin}/api/v1/docs"
       router="hash"
       layout="sidebar"
       tryItCredentialsPolicy="include"
+      style="display:block; width:100vw; height:100vh; min-width: 0;"
     />
   </body>
 </html>`);
